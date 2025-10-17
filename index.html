@@ -6,7 +6,6 @@
     <title>Inkwell - Modern Blogging Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,7 +25,12 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
       }
       .sidebar-glass {
-        background: rgba(30, 41, 59, 0.6);
+        background: rgba(
+          30,
+          41,
+          59,
+          0.8
+        ); /* Increased opacity for mobile overlay */
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -65,12 +69,25 @@
   </head>
   <body class="bg-slate-900 text-slate-300 overflow-hidden">
     <div id="app-container" class="flex h-screen">
-      <!-- Left Sidebar -->
+      <div
+        id="sidebar-overlay"
+        class="fixed inset-0 bg-black bg-opacity-60 z-30 hidden md:hidden"
+      ></div>
+
       <aside
-        class="w-64 h-full sidebar-glass p-6 flex-shrink-0 hidden md:flex flex-col justify-between"
+        id="left-sidebar"
+        class="w-64 h-full sidebar-glass p-6 flex-shrink-0 flex flex-col justify-between fixed top-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0"
       >
         <div>
-          <h1 class="text-2xl font-bold text-white mb-10">Inkwell</h1>
+          <div class="flex justify-between items-center mb-10">
+            <h1 class="text-2xl font-bold text-white">Inkwell</h1>
+            <button
+              id="close-sidebar"
+              class="md:hidden text-slate-400 hover:text-white"
+            >
+              <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+          </div>
           <nav class="space-y-4">
             <a
               href="#"
@@ -129,28 +146,34 @@
         </div>
       </aside>
 
-      <!-- Main Content -->
       <main class="flex-1 flex flex-col h-screen">
-        <!-- Header -->
         <header
-          class="flex-shrink-0 bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-between p-4 md:p-6 border-b border-slate-700/50"
+          class="flex-shrink-0 bg-slate-900/50 backdrop-blur-sm z-20 flex items-center justify-between p-4 md:p-6 border-b border-slate-700/50"
         >
-          <div class="relative w-full max-w-md">
-            <i
-              data-lucide="search"
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            ></i>
-            <input
-              type="text"
-              id="search-bar"
-              placeholder="Search articles or authors..."
-              class="w-full bg-slate-800/80 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div class="flex items-center">
+            <button
+              id="sidebar-toggle"
+              class="md:hidden mr-4 text-slate-400 hover:text-white"
+            >
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <div class="relative w-full max-w-xs sm:max-w-md">
+              <i
+                data-lucide="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              ></i>
+              <input
+                type="text"
+                id="search-bar"
+                placeholder="Search articles..."
+                class="w-full bg-slate-800/80 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2 sm:space-x-4">
             <button
               id="create-post-btn"
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              class="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
               <i data-lucide="plus-circle" class="w-5 h-5"></i>
               <span class="hidden sm:inline">Create Post</span>
@@ -162,24 +185,22 @@
                 alt="User"
                 class="w-10 h-10 rounded-full"
               />
-              <div>
+              <div class="hidden md:block">
                 <span
                   id="current-user-name-header"
                   class="text-white font-semibold"
                 ></span>
-                <i data-lucide="chevron-down" class="inline"></i>
+                <i data-lucide="chevron-down" class="inline w-4 h-4"></i>
               </div>
             </div>
           </div>
         </header>
 
         <div class="flex-1 flex overflow-hidden">
-          <!-- Center Content Area -->
           <div
             id="main-content-area"
-            class="flex-1 p-6 overflow-y-auto main-content"
+            class="flex-1 p-4 sm:p-6 overflow-y-auto main-content"
           >
-            <!-- Dynamic Views will be injected here -->
             <div id="home-view"></div>
             <div id="article-view" class="hidden"></div>
             <div id="profile-view" class="hidden"></div>
@@ -187,37 +208,29 @@
             <div id="search-results-view" class="hidden"></div>
           </div>
 
-          <!-- Right Sidebar -->
           <aside
             class="w-80 h-full glass-card p-6 flex-shrink-0 hidden lg:block overflow-y-auto main-content"
           >
-            <!-- Popular Authors -->
             <div id="popular-authors-container">
               <h3 class="text-lg font-semibold text-white mb-4">
                 Popular Authors
               </h3>
-              <div id="popular-authors-list" class="space-y-4">
-                <!-- JS will populate this -->
-              </div>
+              <div id="popular-authors-list" class="space-y-4"></div>
             </div>
-            <!-- Popular Tags -->
             <div id="popular-tags-container" class="mt-8">
               <h3 class="text-lg font-semibold text-white mb-4">
                 Popular Topics
               </h3>
-              <div id="popular-tags-list" class="flex flex-wrap gap-2">
-                <!-- JS will populate this -->
-              </div>
+              <div id="popular-tags-list" class="flex flex-wrap gap-2"></div>
             </div>
           </aside>
         </div>
       </main>
     </div>
 
-    <!-- Social Share Modal -->
     <div
       id="share-modal"
-      class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center hidden z-50"
+      class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4"
     >
       <div class="glass-card rounded-xl p-8 max-w-sm w-full relative">
         <button
@@ -556,13 +569,13 @@
           const isLiked =
             article.likes && article.likes.includes(CURRENT_USER_ID);
           return `
-            <div class="glass-card rounded-xl p-4 flex items-center gap-6">
-                <span class="text-3xl font-bold text-slate-600">${String(
+            <div class="glass-card rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6">
+                <span class="hidden sm:block text-3xl font-bold text-slate-600">${String(
                   index
                 ).padStart(2, "0")}</span>
                 <img src="${
                   article.image
-                }" alt="Article thumbnail" class="w-40 h-24 object-cover rounded-lg">
+                }" alt="Article thumbnail" class="w-full h-40 sm:w-40 sm:h-24 object-cover rounded-lg flex-shrink-0">
                 <div class="flex-1">
                     <a href="#" class="block text-lg font-semibold text-white hover:text-blue-400 transition-colors article-link" data-id="${
                       article.id
@@ -591,7 +604,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="like-btn p-2 rounded-full self-start ${
+                <button class="like-btn p-2 rounded-full self-end sm:self-start ${
                   isLiked
                     ? "text-red-500 bg-red-500/10"
                     : "text-slate-400 hover:bg-slate-700"
@@ -624,10 +637,10 @@
                 <button id="back-to-home" class="flex items-center gap-2 text-slate-400 hover:text-white mb-6">
                     <i data-lucide="arrow-left"></i> Back to Discover
                 </button>
-                <h1 class="text-4xl font-bold text-white mb-4">${
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">${
                   article.title
                 }</h1>
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex flex-col gap-4 sm:flex-row items-start sm:items-center justify-between mb-6">
                     <div class="flex items-center gap-4">
                         <img src="${author ? author.avatar : ""}" alt="${
             author ? author.name : "Unknown"
@@ -655,13 +668,13 @@
                 
                 <img src="${
                   article.image
-                }" class="w-full h-96 object-cover rounded-xl mb-8">
+                }" class="w-full h-64 sm:h-96 object-cover rounded-xl mb-8">
 
                 <div class="prose prose-invert prose-lg max-w-none text-slate-300">
                    ${article.content.replace(/\n/g, "<br><br>")}
                 </div>
 
-                <div class="mt-8 pt-6 border-t border-slate-700 flex items-center justify-between">
+                <div class="mt-8 pt-6 border-t border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                      <div class="flex items-center gap-4 text-slate-400">
                         <button class="like-btn flex items-center gap-2 px-4 py-2 rounded-lg ${
                           isLiked
@@ -680,14 +693,13 @@
                             } Comments
                         </div>
                      </div>
-                     <button class="share-btn flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-700" data-id="${
+                     <button class="share-btn flex items-center justify-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-700" data-id="${
                        article.id
                      }">
                          <i data-lucide="share-2"></i> Share
                      </button>
                 </div>
                 
-                <!-- Comments Section -->
                 <div id="comments-section" class="mt-10">
                     <h3 class="text-2xl font-bold text-white mb-6">Comments</h3>
                     <div class="glass-card p-4 rounded-lg">
@@ -897,6 +909,7 @@
           const popularAuthorsList = document.getElementById(
             "popular-authors-list"
           );
+          if (!popularAuthorsList) return;
           const sortedAuthors = [...db.users]
             .sort((a, b) => b.followers - a.followers)
             .slice(0, 4);
@@ -921,6 +934,7 @@
 
           // Popular Tags
           const popularTagsList = document.getElementById("popular-tags-list");
+          if (!popularTagsList) return;
           const allTags = db.articles.flatMap((a) => a.tags || []);
           const tagCounts = allTags.reduce((acc, tag) => {
             acc[tag] = (acc[tag] || 0) + 1;
@@ -1172,6 +1186,36 @@
               feedback.style.opacity = "0";
             }, 2000);
           });
+
+        // --- MOBILE SIDEBAR LOGIC ---
+        const sidebarToggle = document.getElementById("sidebar-toggle");
+        const leftSidebar = document.getElementById("left-sidebar");
+        const sidebarOverlay = document.getElementById("sidebar-overlay");
+        const closeSidebarBtn = document.getElementById("close-sidebar");
+
+        function openSidebar() {
+          leftSidebar.classList.remove("-translate-x-full");
+          sidebarOverlay.classList.remove("hidden");
+        }
+
+        function closeSidebar() {
+          leftSidebar.classList.add("-translate-x-full");
+          sidebarOverlay.classList.add("hidden");
+        }
+
+        sidebarToggle.addEventListener("click", openSidebar);
+        closeSidebarBtn.addEventListener("click", closeSidebar);
+        sidebarOverlay.addEventListener("click", closeSidebar);
+
+        // Also close sidebar on nav link click for better mobile UX
+        leftSidebar.querySelectorAll("nav a").forEach((link) => {
+          link.addEventListener("click", () => {
+            if (window.innerWidth < 768) {
+              // md breakpoint in tailwind is 768px
+              closeSidebar();
+            }
+          });
+        });
 
         // --- INITIALIZATION ---
         function initializeApp() {
