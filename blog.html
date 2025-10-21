@@ -6,7 +6,6 @@
     <title>Waves - Modern Blogging Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Firebase Libraries -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -70,15 +69,12 @@
     </style>
   </head>
   <body class="bg-slate-900 text-slate-300 overflow-hidden">
-    <!-- Main App Container -->
     <div id="app-container" class="flex h-screen">
-      <!-- Mobile Sidebar Overlay -->
       <div
         id="sidebar-overlay"
         class="fixed inset-0 bg-black bg-opacity-60 z-30 hidden md:hidden"
       ></div>
 
-      <!-- Left Sidebar -->
       <aside
         id="left-sidebar"
         class="w-64 h-full sidebar-glass p-6 flex-shrink-0 flex flex-col justify-between fixed top-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0"
@@ -175,7 +171,6 @@
         </button>
       </aside>
 
-      <!-- Main Content -->
       <main class="flex-1 flex flex-col h-screen">
         <header
           class="flex-shrink-0 bg-slate-900/50 backdrop-blur-sm z-20 flex items-center justify-between p-4 md:p-6 border-b border-slate-700/50"
@@ -233,7 +228,6 @@
             id="main-content-area"
             class="flex-1 p-4 sm:p-6 overflow-y-auto main-content"
           >
-            <!-- App Views will be rendered here -->
             <div id="home-view"></div>
             <div id="article-view" class="hidden"></div>
             <div id="profile-view" class="hidden"></div>
@@ -264,7 +258,6 @@
       </main>
     </div>
 
-    <!-- Share Modal -->
     <div
       id="share-modal"
       class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4"
@@ -885,20 +878,23 @@
           lucide.createIcons();
         }
 
+        // --- THIS IS THE FIXED FUNCTION ---
         function renderSearchResults(query) {
           const lowerQuery = query.toLowerCase();
+
           const foundArticles = db.articles.filter(
             (a) =>
-              a.title.toLowerCase().includes(lowerQuery) ||
-              a.content.toLowerCase().includes(lowerQuery) ||
+              (a.title && a.title.toLowerCase().includes(lowerQuery)) ||
+              (a.content && a.content.toLowerCase().includes(lowerQuery)) ||
               (a.tags &&
                 a.tags.some((t) => t.toLowerCase().includes(lowerQuery)))
           );
           const foundAuthors = db.users.filter(
             (u) =>
-              u.name.toLowerCase().includes(lowerQuery) ||
-              u.username.toLowerCase().includes(lowerQuery)
+              (u.name && u.name.toLowerCase().includes(lowerQuery)) ||
+              (u.username && u.username.toLowerCase().includes(lowerQuery))
           );
+
           views.searchResults.innerHTML = `<h2 class="text-3xl font-bold text-white mb-6">Search Results for "${query}"</h2>${
             foundAuthors.length > 0
               ? `<h3 class="text-xl font-semibold text-white mb-4">Authors</h3><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">${foundAuthors
@@ -920,6 +916,7 @@
           switchView("searchResults");
           lucide.createIcons();
         }
+        // --- END OF FIXED FUNCTION ---
 
         function renderSidebars() {
           const popularAuthorsList = document.getElementById(
