@@ -785,9 +785,7 @@
             <div class="mb-4">
                 <div class="flex justify-between items-center mb-2">
                     <label for="image" class="block text-slate-400">Image URL</label>
-                    <a href="https://postimages.org/" target="_blank" class="text-sm bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
-                        Upload Image <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-                    </a>
+                   
                 </div>
                 <input type="url" id="image" name="image" placeholder="Paste image link here..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white" value="${
                   article ? article.image : ""
@@ -867,9 +865,6 @@
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-2">
                     <label for="edit-avatar" class="block text-slate-400">Avatar URL</label>
-                    <a href="https://postimages.org/" target="_blank" class="text-sm bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
-                        Upload Avatar <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-                    </a>
                 </div>
                 <input type="url" id="edit-avatar" name="avatar" placeholder="Paste image link here..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white" value="${currentUser.profile.avatar}" required>
             </div>
